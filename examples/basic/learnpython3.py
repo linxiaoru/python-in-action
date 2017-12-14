@@ -104,3 +104,35 @@ b == a              # => True，a 指向的对象和 b 指向的对象的值是�
 
 # 字符串能够被当作是一个数组的元素
 "This is a string"[0]   # => 'T'
+
+# 可以使用 len() 函数来获取字符串的长度
+len("This is a string")     # => 16
+
+# 可以使用 .format 来格式化字符串
+"{} can be {}".format("Strings", "interpolated")    # => "Strings can be interpolated"
+
+# 可以重复使用格式化参数来减少重复的输入
+"{0} be nimble, {0} be quick, {0} jump over the {1}".format("Jack", "candle stick")
+# => "Jack be nimble, Jack be quick, Jack jump over the candle stick"
+
+# 如果不想去数参数，可以使用关键字来代替。就是说上例中的 {0} 代表的是 .format() 的第一个参数，{1} 是第二个参数
+"{name} wants to eat {food}".format(name="Bob", food="lasagna")     # => "Bob wants to eat lasagna"
+
+# 如果你的 Python 3 代码也需要运行在 Python 2.5 及以下版本中，可以使用旧的格式化形式
+"%s can be %s the %s way" % ("Strings", "interpolated", "old")      # => "Strings can be interpolated the old way"
+
+# None 是一个对象
+None    # => None
+
+# 不要使用相等判断号（==）来比较对象和 None
+# 使用 is 来代替。这个能够检查对象的值是否相等
+"etc" is None   # => False
+None is None   # => True
+
+# None，0，空字符串，空数组，空字典，空元组都判定为 False
+# 其他的值都是 True
+bool(0)   # => False
+bool("")  # => False
+bool([])  # => False
+bool({})  # => False
+bool(())  # => False
