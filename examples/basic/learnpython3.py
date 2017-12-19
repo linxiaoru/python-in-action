@@ -475,3 +475,229 @@ next(our_iterable)      # 抛出 StopIteration 异常
 # 可以使用 list() 来获取迭代器中所有的元素
 list(filled_dict.keys())    # => 返回 ["one", "two", "three"]
 
+
+####################################################
+## 4. 函数
+####################################################
+
+# 使用 def 创建新的函数
+def add(x, y):
+    print("x is {} and y is {}".format(x, y))
+    return x + y        # 使用 return 语句来返回值
+
+# 调函函数并传入参数
+add(5, 6)       # => 打印“x is 5 and y is 6“然后返回 11
+
+# 另一种传入关键字参数的调用函数的方式。关键字参数传入的是一个 dict
+add(y=6, x=5)   # => 关键字参数可以以任意顺序传入
+
+# 你也可以定义一个函数，然后传入一个可变数量的位置参数。位置参数是可变参数，args 接收的是一个 tuple。
+def varargs(*args):
+    return args
+
+varargs(1, 2, 3)    # => (1, 2, 3)
+
+# 同样，你也可以定义一个传入可变数量的关键字参数的函数
+def keywords_args(**kwargs):
+    return kwargs
+
+# 我们来调用看看，看它会发生什么
+keywords_args(big="foot", loch="ness")      # => {"big": "foot", "loch": "ness"}
+
+# 你也可以同时传入这两种类型的参数，如果你想这么做的话
+def all_the_args(*args, **kwargs):
+    print(args)
+    print(kwargs)
+"""
+all_the_args(1, 2, a=3, b=4) prints:
+    (1, 2)
+    {"a": 3, "b": 4}
+"""
+
+# 调用函数时，关键字参数和定位参数还可以反过来用
+# 使用 * 来解包元组，** 来解包关键字参数
+args = (1, 2, 3, 4)
+kwargs = {"a": 3, "b": 4}
+all_the_args(*args)             # => 相当于 foo(1, 2, 3, 4)
+all_the_args(**kwargs)          # => 相当于 foo(a=3, b=4)
+all_the_args(*args, **kwargs)   # => 相当于 foo(1, 2, 3, 4, a=3, b=4)
+
+# 返回多个值（包含元组参数）
+def swap(x, y):
+    return y, x         # 将多个值当作一个元组来返回，不用加圆括号
+                        # 注意：圆括号被去掉了，但是也可加上
+
+x = 1
+y = 2
+x, y = swap(x, y)       # => x = 2, y = 1
+# (x, y) = swap(x, y)   # 又一次去掉了圆括号，但是也是可以加上的
+
+# 函数作用域
+x = 5
+
+def set_x(num):
+    # 局部声明一个变量 x 和全局声明的变量 x 是不一样的
+    x = num     # => 43
+    print(x)    # => 43
+
+def set_global_x(num):
+    global x
+    print(x)    # => 5
+    x = num     # 全局声明的参数 x 现在设置为 6
+    print(x)    # => 6
+
+set_x(43)
+set_global_x(6)
+
+
+# 函数在 Python 中是一等公民
+def create_adder(x):
+    def adder(y):
+        return x + y
+    return adder
+
+add_10 = create_adder(10)
+add_10(3)       # => 13
+
+# 还有匿名函数
+(lambda x: x >2)(3)                     # => True
+(lambda x, y: x ** 2 + y ** 2)(2, 1)    # => 5
+
+# 还有一些内建的高阶函数
+list(map(add_10, [1, 2, 3]))            # => [11, 12, 13]
+list(map(max, [1, 2, 3], [4, 2, 1]))    # => [4, 2, 3]
+                                        # 1 和 4 比较，返回4；2 和 2 比较，返回 2；3 和 1 比较，返回 3
+list(filter(lambda x: x > 5, [3, 4, 5, 6, 7]))      # => [6, 7]
+
+# 我们可以使用递推式构造列表来构造更好的 map 和 filter 
+# 递推式构造列表将输出存储为一个列表，而列表本身又可以套叠列表
+[add_10(i) for i in [1, 2, 3]]          # => [11, 12, 13]
+[x for x in [3, 4, 5, 6, 7] if x > 5]   # => [6, 7]
+
+# 同样可以将集合和字典进行递推式构造
+{x for x in 'abcddeef' if x not in 'abc'}   # => {'d', 'e', 'f'}
+{x: x**2 for x in range(5)}                 # => {1: 1, 2: 4, 3: 9, 4: 16}
+
+
+####################################################
+## 5. 模块
+####################################################
+
+# 你可以引入模块
+import math
+print(math.sqrt(16))    # => 4.0
+
+# 你也可以从模块中获取指定的函数
+from math import ceil, floor
+print(ceil(3.7))        # => 4.0
+print(ceil(3.7))        # => 3.0
+
+# 你也可以引入模块中的所有函数
+# 警告：不推荐这么做
+from math import *
+
+# 也能够缩写模块的名字
+import math as m
+math.sqrt(16) == m.sqrt(16)     # => True
+
+# Python 模块实际上就是普通的 Python 文件。
+# 你可以自己写你自己的模块，也可以引入它们。
+# 模块的名称和文件同名
+
+# 你可以使用 dir 查明哪些函数和属性是已经在模块中定义好的
+import math
+dir(math)
+
+# 如果在你当前脚本所在的文件夹中有一个 Python 脚本命名为 math.py，
+# 那么这个 math.py 文件将会替换内置的 Python 模块而被加载 
+# 这是因为本地文件夹的优先级高于 Python 的内置库
+
+
+####################################################
+## 6. 类
+####################################################
+
+#我们可以使用 class 语句来创建一个类
+class Human:
+    # 类的属性可以被类的所有实例所共享
+    species = "H. sapiens"
+
+    # 基本的初始化（构造函数），在类被实例化时调用
+    # 注意：双下划线开头并且双下划线结尾的对象或者属性是被 Python 自己使用的，但是是存在于用户命名空间的
+    # 方法（或者对象或者属性）像这样形式的：__init__, __str__, __repr__ 等叫做特殊方法（或者魔法方法）
+    # 不要使用这样的形式来命名你自己的变量
+    def __init__(self, name):
+        # 将参数赋值给实例的 name 属性
+        self.name = name
+
+        # 初始化属性
+        self._age = 0
+
+    # 一个实例方法。所有的方法使用 self 作为第一个参数
+    def say(self, msg):
+        print("{name}: {message}".format(name=self.name, message=msg))
+
+    # 另一个实例方法。
+    def sing(self):
+        return 'yo... yo... microphone check... one two... one two...'
+
+    # 类方法会被所有实例共享。
+    # 类方法在调用时，会将类本身作为第一个函数传入。
+    @classmethod
+    def get_species(cls):
+        return cls.species
+
+    # 静态方法被调用时不传入类或者实例的引用
+    @staticmethod
+    def grunt():
+        return "*grunt*"
+
+    # 属性函数(property)类似 getter
+    # 它能将 age() 方法变成一个只读属性
+    # 在 Python 中，没必要写 getter 和 setter 
+    @property
+    def age(self):
+        return self._age
+
+    # 属性函数(property)可以被设置
+    @age.setter
+    def age(self, age):
+        self._age = age
+    
+    # 属性函数(property)也可以被删除
+    @age.deleter
+    def age(self):
+        del self._age
+
+# 当 Python 监视器读取源文件时会执行所有的代码
+# __name__ 检测会确保这个代码块只在主程序模块中执行
+if __name__ == '__main__':
+    # 实例化一个类
+    i = Human(name="Ian")
+    i.say("hi")             # => "Ian: hi"
+    j = Human(name="Joel")
+    j.say("hello")          # => "Joel: hello"
+    # i 和 j 是 Human 的实例，或者换句话说，它们是 Human 对象
+
+    # 调用类方法
+    i.say(i.get_species())  # => "Ian: H. sapiens"
+    # 修改共享属性
+    Human.species = "H. neanderthalensis"
+    i.say(i.get_species())  # => "Ian: H. neanderthalensis"
+    j.say(j.get_species())  # => "Joel: H. neanderthalensis"
+
+    # 调用静态方法
+    print(Human.grunt())    # => "*grunt*"
+
+    # 不能使用对象的实例来调用静态方法
+    # 因为 i.grunt() 将会自动地将 self（对象 i） 作为第一个参数传入
+    print(i.grunt())                # => TypeError: grunt() takes 0 positional arguments but 1 was given
+    
+    # 更新实例的属性
+    i.age = 42
+    # 获取属性
+    i.say(i.age)        # => "Ian: 42"
+    j.say(j.age)        # => "Joel: 0"
+    # 删除属性
+    del i._age
+    # i.age             # => 这会抛出一个 AttributeError 
