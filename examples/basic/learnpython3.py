@@ -701,3 +701,85 @@ if __name__ == '__main__':
     # 删除属性
     del i._age
     # i.age             # => 这会抛出一个 AttributeError 
+
+####################################################
+## 6.1 继承
+####################################################
+
+# 继承允许新的子类在定义时从父类继承方法和变量
+
+# 将我们之前已经定义好的 Human 类作为基类或者父类，我们就可以定义一个子类，Superhero，它将继承父类的变量 "species",
+# "name", 和 "age",同样还会继承方法，像是 "sing" 和 "grunt"方法，但是它也能拥有自己的特有的属性。
+
+# 利用文件模块化这一优势，你可以将上面提到的类放到文件里，如 say.py，human.py
+
+# 将函数从其他文件中导入可以使用以下的导入格式
+# from "不带扩展名的文件名" import "函数或类"
+from human import Human
+
+# 指定父类（们）作为定义一个类时的参数
+class Superhero(Human):
+
+    # 如果子类要继承父类的所有定义并且不进行更改，你可以使用 pass 关键字（并且没有别的了）
+    # 但是在这个例子中，pass 被注释掉了，是为了能有一个独特的子类
+    # pass
+
+    # 子类能够重写父类的属性
+    species = 'Superhuman'
+
+    # 子类能够自动地继承父类的构造器包括它的参数，但是也能够额外地定义附加的参数或者重写它的方法，比如说类的构造函数
+    # 这个构造函数从 Human 类继承了 name 参数并且加了 superpowers 和 movie 参数：
+    def __init__(self, name, movie=False,
+                 superpowers=["super strength", "bulletproofing"]):
+
+        # 添加附加的类属性：
+        self.fictional = True
+        self.movie = movie
+        self.superpowers = superpowers
+
+        # super 函数使你能够获取被子类重写了的父类的方法，在这个例子中，就是 __init__ 方法。
+        # 调用父类的构造函数：
+        super().__init__(name)
+
+    # 重写 sing 方法
+    def sing(self):
+        return 'Dun, dun, DUN!'
+
+    # 再添加一个额外的类方法
+    def boast(self)
+        for power in self.superpowers:
+            print("I wield the power of {pow}!".format(pow=power))
+
+if __name__ == '__main__':
+    sup = Superhero(name="Tick")
+
+    # 实例类型检查
+    if isinstance(sup, Human):
+        print('I am human')
+    if type(sup) is Superhero:
+        print('I am a superhero')
+
+
+    # 属性是动态的而且还能够更新
+    print(Superhero.__mro__)        # => (<class '__main__.Superhero'>,
+                                    # => <class 'human.Human'>, <class 'object'>)
+
+    # 使用自己的类属性来调用父类的方法
+    print(sup.get_species())        # => Superhuman
+
+    # 调用重载方法
+    print(sup.sing())               # => Dun, dun, DUN!
+
+    # 调用来自 Human 的方法
+    say.say('Spoon')                # => Tick: Spoon
+
+    # 调用只存在在 Superhero 中的方法
+    sup.boast()                     # => I wield the power of super strength!
+                                    # => I wield the power of bulletproffing!
+
+    # 继承类的属性
+    sup.age = 31
+    print(sup.age)                  # => 31
+
+    # 只存在在 Superhero 中的属性
+    print('Am I Oscar eligible?' + str(sup.movie))
