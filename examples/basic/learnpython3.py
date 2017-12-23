@@ -759,7 +759,7 @@ if __name__ == '__main__':
     if type(sup) is Superhero:
         print('I am a superhero')
 
-
+    # 使用 getattr() 和 super() 来获取 MRO(从左至右的深度优先遍历)
     # 属性是动态的而且还能够更新
     print(Superhero.__mro__)        # => (<class '__main__.Superhero'>,
                                     # => <class 'human.Human'>, <class 'object'>)
@@ -783,3 +783,139 @@ if __name__ == '__main__':
 
     # 只存在在 Superhero 中的属性
     print('Am I Oscar eligible?' + str(sup.movie))
+
+####################################################
+## 6.2 多重继承
+####################################################
+
+# 另一个类的定义
+# bat.py
+class Bat:
+
+    species = 'Baty'
+
+    def __init__(self, can_fly=True):
+        self.fly = can_fly
+
+    # 这个类也有一个 say 方法
+    def say(self, msg):
+        msg = '... ... ...'
+        return msg
+
+    # 同样，它也有自己的方法
+    def sonar(self):
+        return '))) ... ((('
+
+if __name__ == '__main__':
+    b = Bat()
+    print(b.say('hello'))
+    print(b.fly)
+
+
+# 还有一个从 Superhero 和 Bat 继承来的类的定义
+#  superhero.py
+from superhero import Superhero
+from bat import Bat
+
+# 定义从 Superhero 和 Bat 继承来的子类的 Batman
+class Batman(Superhero, Bat):
+
+    def __init__(self, *args, **kwargs):
+        # 通常需要调用 super 来继承属性
+        # super(Batman, self).__init__(*args, **kwargs)
+        # 然而我们这里是要处理多态，super 不是简单地调用所谓基类的方法，而是调用 MRO 中的下一个类的方法，也就是类似于 next 的方法。
+        # 因此用另一种方法替代，我们为所有的祖先调用 __init__ 
+        # 使用 *args 和 **kwargs 是一中整洁的方式来传递参数，每个父类就像剥洋葱一样一层一层进行
+        Superhero.__init__(self, 'anonymous', movie=True,
+                            superpowers=['Wealthy'], *args, **kwargs)
+        Bat.__init__(self, *args, can_fly=False, **kwargs)
+        # 重写 name 属性的值
+        self.name = 'Sad Affleck'
+
+    def sing(self):
+        return 'nan nan nan nan nan batman!'
+
+if __name__ == '__main__':
+    sup = Batman()
+
+    # 使用 getattr() 和 super() 来获取 MRO(从左至右的深度优先遍历)
+    # 这个属性是动态的并且可被更新
+    print(Batman.__mro__)       # => (<class '__main__.Batman'>, 
+                                # => <class 'superhero.Superhero'>, 
+                                # => <class 'human.Human'>, 
+                                # => <class 'bat.Bat'>, <class 'object'>)
+    
+    # 用自己的类属性来调用父类的方法
+    print(sup.get_species())    # => Superman
+
+    # 调用重载了的方法
+    print(sup.sing())           # => nan nan nan nan nan batman!
+
+    # 调用方法来自 Human，因为继承的顺序很重要
+    sup.say('I agree')         # => Sad Affleck: I agree
+
+    # 调用只存在于第二个祖先的方法
+    print(sup.sonar())         # => ))) ... (((
+    
+    # 继承类的属性
+    sup.age = 100
+    print(sup.age)             # => 100
+
+    # 从二级祖先处继承来的属性默认值是被重写了的
+    print('Can I fly? ' + str(sup.fly)) # => Can I fly? False
+
+
+####################################################
+## 7. 进阶
+####################################################
+
+# 生成器能够帮你简化代码
+def double_numbers(iterable):
+    for i in iterable:
+        yield i + +
+
+# 生成器能节省内存因为它们只在加载迭代对象迭代过程中下一个进程中的数据。
+# 这反而能使它们执行操作更大范围的值
+# 注意：在 Python 中，rang 替代了 xrange
+for i in double_numbers(range(1, 900000000)):  # range 是一个生成器
+    print(i)
+    if i >= 30:
+        break
+
+# 正如你能够创建一个递推式构造列表，同样，你也能创建一个递推式构造生成器
+values = (-x for x in [1,2,3,4,5])
+for x in values:
+    print(x)  # 控制台打印 -1 -2 -3 -4 -5 
+
+# 你也能直接在列表中列出所有的递推式构造生成器
+values = (-x for x in [1,2,3,4,5])
+gen_to_list = list(values)
+print(gen_to_list)  # => [-1, -2, -3, -4, -5]
+
+
+# 装饰器
+# 在这个例子中，beg 包裹着 say。 如果 say_please 是真值，则它将会改变返回的信息
+from functools import wraps
+
+
+def beg(target_function):
+    @wraps(target_function)
+    def wrapper(*args, **kwargs):
+        msg, say_please = target_function(*args, **kwargs)
+        if say_please:
+            return "{} {}".format(msg, "Please! I am poor :(")
+        return msg
+
+    return wrapper
+
+
+@beg
+def say(say_please=False):
+    msg = "Can you buy me a beer?"
+    return msg, say_please
+
+
+print(say())                 # Can you buy me a beer?
+print(say(say_please=True))  # Can you buy me a beer? Please! I am poor :(
+
+
