@@ -37,7 +37,7 @@ class Robot:
         # 来自机器人的问候
         print("Greetings, my masters call me {}".format(self.name))
     
-    @classmethod
+    @classmethod  # 启用 @classmethod 装饰器等价于调用：how_many = classmethod(how_many)
     def how_many(cls):
         # 打印出当前的人口数量
         print("We have {:d} robots.".format(cls.population))
@@ -59,3 +59,9 @@ droid1.die()
 droid2.die()
 
 Robot.how_many()
+
+"""
+population 属于 Robot 类，因此它是一个类变量。name 变量属于一个对象（通过使用 self 分配），因此它是一个对象变量。
+当一个对象变量与一个类变量名称相同时，类变量将会被隐藏。
+除了 Robot.popluation，我们还可以使用 self.__class__.population，因为每个对象都通过 self.__class__ 属性来引用它的类。
+"""
