@@ -33,6 +33,10 @@ def crawl():
     for item in data:
         print(item)
 
+# 把相应结果另存为 html 文件
+with open("weixin_history.html", "w", encoding="utf-8") as f:
+    f.write(response.text)
+
 
 def extract_data(html_content):
     """
@@ -56,6 +60,7 @@ def extract_data(html_content):
             print(item)
         return articles
 
+# requests.get 方法里面的 headers 参数必须是字典对象
 def headers_to_dict(headers):
     """
     将字符串
@@ -64,7 +69,12 @@ def headers_to_dict(headers):
     Connection: keep-alive
     Cache-Control: max-age=
     '''
-    转换成字典类型
+    转换成字典对象
+    {
+        "Host": "mp.weixin.qq.com"
+        "Connection": "keep-alive"
+        "Cache-Control": "max-age="
+    }
     :param headers: str
     :return: dict
     """
